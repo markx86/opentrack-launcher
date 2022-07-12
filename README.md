@@ -9,6 +9,8 @@ A script to launch the Windows version of opentrack along with a steam game/app 
 
 ## Usage
 
+**NOTE**: If you use flapak follow [these](#with-steam-flatpak) instructions.
+
 Open a terminal and copy paste the following command to install it:
 
 ```bash
@@ -16,7 +18,6 @@ Open a terminal and copy paste the following command to install it:
 $ sudo wget https://raw.githubusercontent.com/VolatileMark/opentrack-launcher/master/opentrack-launcher -O /usr/local/bin/opentrack-launcher && sudo chmod +x /usr/local/bin/opentrack-launcher
 
 # Non-root option: not as easy but recommended
-# (use this if you use the flatpak version of Steam)
 $ mkdir -p ~/.local/bin && wget https://raw.githubusercontent.com/VolatileMark/opentrack-launcher/master/opentrack-launcher -O ~/.local/bin/opentrack-launcher && chmod +x ~/.local/bin/opentrack-launcher
 ```
 
@@ -24,7 +25,6 @@ Then in Steam, right-click the game you want to use opentrack with, click on `Pr
 
 ```bash
 # If you installed the script with the root option:
-# (use this if you use the flatpak version of Steam)
 opentrack-launcher %command%
 
 # If you installed the script with the non-root option:
@@ -35,7 +35,24 @@ The first time you run the game with the launcher it might take a while, since i
 
 ### With Steam Flatpak
 
-If you use the flatpak version of Steam follow the non-root install procedure and then download and run the script `flatpak-fix.sh`. The `LAUNCH OPTIONS` string is the same as if you followed the root install procedure.
+Download the script `flatpak-install.sh` and run it or open a terminal and run the following commands.
+
+```bash
+$ mkdir -p ~/.var/app/com.valvesoftware.Steam/bin
+$ wget https://raw.githubusercontent.com/VolatileMark/opentrack-launcher/master/opentrack-launcher -O ~/.var/app/com.valvesoftware.Steam/bin/opentrack-launcher
+$ echo '#!/bin/sh' > ~/.var/app/com.valvesoftware.Steam/bin/7z
+$ echo 'PARAMS=$(echo "$@" | sed "s_/home/"$USER"/.local_/home/"$USER"/.var/app/com.valvesoftware.Steam/.local_g")' >> ~/.var/app/com.valvesoftware.Steam/bin/7z
+$ echo '/usr/bin/flatpak-spawn --host 7z $PARAMS' >> ~/.var/app/com.valvesoftware.Steam/bin/7z
+$ chmod +x ~/.var/app/com.valvesoftware.Steam/bin/7z ~/.var/app/com.valvesoftware.Steam/bin/opentrack-launcher
+$ flatpak override --user --env=PATH="/app/bin:/app/utils/bin:/usr/bin:/home/$USER/.var/app/com.valvesoftware.Steam/bin" --socket=session-bus com.valvesoftware.Steam
+```
+
+The `LAUNCH OPTIONS` string is the same as the one for the root install:
+
+```bash
+# Launch options for Steam flatpak
+opentrack-launcher %command%
+```
 
 ## Folders
 
