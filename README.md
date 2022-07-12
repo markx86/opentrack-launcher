@@ -13,10 +13,10 @@ Open a terminal and copy paste the following command to install it:
 
 ```bash
 # Root option: easier but discouraged
-$ sudo wget https://raw.githubusercontent.com/VolatileMark/opentrack-launcher/master/opentrack-launcher -o /usr/local/bin/opentrack-launcher && sudo chmod +x /usr/local/bin/opentrack-launcher
+$ sudo wget https://raw.githubusercontent.com/VolatileMark/opentrack-launcher/master/opentrack-launcher -O /usr/local/bin/opentrack-launcher && sudo chmod +x /usr/local/bin/opentrack-launcher
 
 # Non-root option: not as easy but recommended
-$ mkdir -p ~/.local/bin && wget https://raw.githubusercontent.com/VolatileMark/opentrack-launcher/master/opentrack-launcher -o ~/.local/bin/opentrack-launcher && chmod +x ~/.local/bin/opentrack-launcher
+$ mkdir -p ~/.local/bin && wget https://raw.githubusercontent.com/VolatileMark/opentrack-launcher/master/opentrack-launcher -O ~/.local/bin/opentrack-launcher && chmod +x ~/.local/bin/opentrack-launcher
 ```
 
 Then in Steam, right-click the game you want to use opentrack with, click on `Properties` and in the `LAUNCH OPTIONS` field, depending on how you installed the script, type one of the following commands:
