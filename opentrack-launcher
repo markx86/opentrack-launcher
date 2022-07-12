@@ -1,0 +1,146 @@
+#!/usr/bin/python3
+
+from os.path import join, isfile, isdir, abspath
+from os import makedirs, mkdir, environ, remove
+from sys import argv
+from urllib.request import urlopen, urlretrieve
+from urllib.error import URLError
+from shutil import which, rmtree
+from subprocess import Popen
+import json
+
+def panic(msg):
+    print("[opentrack-launcher] CRITICAL:", msg)
+    exit(-1)
+
+def error(msg):
+    print("[opentrack-launcher] ERROR:", msg)
+
+def info(msg):
+    print("[opentrack-launcher] INFO:", msg)
+
+def getenv(name):
+    try:
+        return environ[name]
+    except KeyError:
+        panic("environment variable", name, "not found")
+
+APPIDSIG = "AppId="
+LAUNCHERHOME = join(getenv("HOME"), ".local/share/opentrack-launcher")
+OPENTRACKURL = "http://api.github.com/repos/opentrack/opentrack/releases/latest"
+
+def findappid():
+    appid = ""
+    for arg in argv:
+        if APPIDSIG in arg:
+            appid = arg[len(APPIDSIG):]
+    if appid == "":
+        panic("appid not found")
+    info("launching app with id " + str(appid) + "...")
+    return appid
+
+def isnewer(ver):
+    versionfile = join(LAUNCHERHOME, "version.txt")
+    if not isfile(versionfile):
+        with open(versionfile, mode="w") as f:
+            f.write(ver)
+        f.close()
+        return True
+    with open(versionfile, mode="r+") as f:
+        fver = f.read()
+        newer = fver != ver
+        if newer:
+            f.truncate(0)
+            f.write(ver)
+        f.close()
+        return newer
+
+def dlopentrack():
+    info("checking if opentrack is up to date...")
+    try:
+        content = urlopen(OPENTRACKURL).read().decode("UTF-8")
+    except URLError:
+        error(msg)("could not get opentrack release manifest; error: " + str(e.reason))
+        return
+    
+    try:
+        latest = json.loads(content)
+    except json.JSONDecodeError as e:
+        error("could not parse opentrack release manifest; error occurred at line " + str(e.lineno) + ": " + str(e.msg))
+        return
+    version = latest["tag_name"].split("-")[1]
+    if isnewer(version):
+        info("downloading the latest opentrack version...")
+        for asset in latest["assets"]:
+            if asset["name"].endswith("portable.7z"):
+                opentrackark = join(LAUNCHERHOME, "opentrack.7z")
+                try:
+                    urlretrieve(asset["browser_download_url"], opentrackark)
+                except URLError as e:
+                    error("failed to download opentrack; error: " + str(e.reason))
+                    return
+                if not isfile(opentrackark):
+                    error("file " + opentrackark + " does not exist")
+                    return
+                opentrackinstall = join(LAUNCHERHOME, "install")
+                if isdir(opentrackinstall):
+                    info("removing old opentrack version...")
+                    rmtree(opentrackinstall)
+                info("extracting downloaded opentrack archive...")
+                err = Popen([ "7z", "x", "./opentrack.7z" ], cwd=LAUNCHERHOME).wait()
+                remove(opentrackark)
+                if err != 0:
+                    panic("failed to extract opentrack.7z; 7z exit code: " + str(err))
+                return
+
+def getopentrack():
+    dlopentrack()
+    opentrackexec = join(LAUNCHERHOME, "install/opentrack.exe")
+    if not isfile(opentrackexec):
+        panic("could not find", opentrackexec)
+    else:
+        return opentrackexec
+
+def towinepath(p):
+    p = abspath(p)
+    p.replace("/", "\\")
+    return "Z:" + p
+
+def getlaunchscript(appid, opentrackexec):
+    scripts = join(LAUNCHERHOME, "scripts")
+    if not isdir(scripts):
+        mkdir(scripts)
+        if not isdir(scripts):
+            panic("failed to create scripts directory:", scripts)
+    script = join(scripts, appid + ".bat")
+    if not isfile(script):
+        info("generating script for app with id " + str(appid) + "...")
+        appwine = towinepath(argv[-1])
+        opentrackwine = towinepath(opentrackexec)
+        with open(script, mode="w") as f:
+            f.writelines([
+                "start " + appwine + "\r\n",
+                "start " + opentrackwine + "\r\n"
+            ])
+            f.close()
+    return script
+
+def makehome():
+    if not isdir(LAUNCHERHOME):
+        info("creating home...")
+        makedirs(LAUNCHERHOME, exist_ok=True)
+        if not isdir(LAUNCHERHOME):
+            panic("failed to create opentrack-launcher home:", LAUNCHERHOME)
+
+def check7z():
+    if which("7z") is None:
+        panic("7z is not installed")
+
+if __name__ == '__main__':
+    check7z()
+    makehome()
+    appid = findappid()
+    opentrackexec = getopentrack()
+    argv[-1] = getlaunchscript(appid, opentrackexec)
+    Popen(argv[1:]).wait()
+    info("exiting...")
