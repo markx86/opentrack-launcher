@@ -87,10 +87,10 @@ def dlopentrack():
                     info("removing old opentrack version...")
                     rmtree(opentrackinstall)
                 info("extracting downloaded opentrack archive...")
-                err = Popen([ "7z", "x", "./opentrack.7z" ], cwd=LAUNCHERHOME).wait()
+                err = Popen([ "7z", "x", opentrackark ], cwd=LAUNCHERHOME).wait()
                 remove(opentrackark)
                 if err != 0:
-                    panic("failed to extract opentrack.7z; 7z exit code: " + str(err))
+                    panic("failed to extract " + opentrackark + "; 7z exit code: " + str(err))
                 return
 
 def getopentrack():

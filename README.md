@@ -16,6 +16,7 @@ Open a terminal and copy paste the following command to install it:
 $ sudo wget https://raw.githubusercontent.com/VolatileMark/opentrack-launcher/master/opentrack-launcher -O /usr/local/bin/opentrack-launcher && sudo chmod +x /usr/local/bin/opentrack-launcher
 
 # Non-root option: not as easy but recommended
+# (use this if you use the flatpak version of Steam)
 $ mkdir -p ~/.local/bin && wget https://raw.githubusercontent.com/VolatileMark/opentrack-launcher/master/opentrack-launcher -O ~/.local/bin/opentrack-launcher && chmod +x ~/.local/bin/opentrack-launcher
 ```
 
@@ -23,6 +24,7 @@ Then in Steam, right-click the game you want to use opentrack with, click on `Pr
 
 ```bash
 # If you installed the script with the root option:
+# (use this if you use the flatpak version of Steam)
 opentrack-launcher %command%
 
 # If you installed the script with the non-root option:
@@ -30,6 +32,10 @@ opentrack-launcher %command%
 ```
 
 The first time you run the game with the launcher it might take a while, since it will download the latest version of opentrack and generate the launch script for the game.
+
+### With Steam Flatpak
+
+If you use the flatpak version of Steam follow the non-root install procedure and then download and run the script `flatpak-fix.sh`. The `LAUNCH OPTIONS` string is the same as if you followed the root install procedure.
 
 ## Folders
 
