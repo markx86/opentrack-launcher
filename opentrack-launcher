@@ -35,7 +35,10 @@ def findappid():
         if APPIDSIG in arg:
             appid = arg[len(APPIDSIG):]
     if appid == "":
-        panic("appid not found")
+        error("appid not found, falling back to executable name")
+        appid = argv[-1]
+        if not appid.endswith(".exe"):
+            panic("could not find a valid Windows executable name")
     info("launching app with id " + str(appid) + "...")
     return appid
 
