@@ -106,19 +106,17 @@ def getopentrack():
         return opentrackexec
 
 def towinepath(p):
+    p = abspath(p)
     p = p.replace("/", "\\")
-    if p.startswith("\\"):
-        p = "Z:" + p
-    return p
+    return "Z:" + p
 
-def findgame():
-    exec = ""
+def findappcmdline():
+    cmdline = ""
     for arg in reversed(argv):
+        cmdline = arg + " " + cmdline
         if arg.endswith(".exe"):
-            exec = arg.split("/")[-1] + " " + exec
-            return exec.strip()
-        else:
-            exec = arg + " " + exec
+            break
+    return cmdline.strip()
 
 def getlaunchscript(appid, opentrackexec):
     scripts = join(LAUNCHERHOME, "scripts")
@@ -129,12 +127,16 @@ def getlaunchscript(appid, opentrackexec):
     script = join(scripts, appid + ".bat")
     if not isfile(script):
         info("generating script for app with id " + str(appid) + "...")
-        appwine = towinepath(findgame())
+        appcmdline = findappcmdline()
+        appsplitindex = appcmdline.index(".exe")+len(".exe")
+        appexec = appcmdline[:appsplitindex]
+        appargs = appcmdline[appsplitindex:]
+        appwine = towinepath(appexec)
         opentrackwine = towinepath(opentrackexec)
         with open(script, mode="w") as f:
             f.writelines([
-                "start " + appwine + "\r\n",
-                "start " + opentrackwine + "\r\n"
+                "start \"\" \"" + appwine + "\"" + appargs + "\r\n",
+                "start \"\" \"" + opentrackwine + "\"\r\n"
             ])
             f.close()
     return script
