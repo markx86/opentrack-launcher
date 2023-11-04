@@ -55,10 +55,10 @@ opentrack-launcher %command%
 
 ## Folders
 
-The launcher creates a the following folder structure in your `~/.local/share`:
+The launcher creates a the following folder structure in your `~/.local/share` (or `~/.var/app/com.valvesoftware.Steam/.local/share` if you're using the flatpak version of Steam):
 
 ```bash
-~/.local/share/opentrack-launcher
+./opentrack-launcher
 ├── install         # opentrack portable Windows version install folder
 ├── scripts         # launch scripts (.bat files) for each game
 └── version.txt     # stores the current installed version of opentrack (used for auto-updating opentrack)
