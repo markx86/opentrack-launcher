@@ -29,6 +29,7 @@ APPIDSIG = "AppId="
 APPHOME = getenv("HOME") if not isfile("/.flatpak-info") else join(getenv("HOME"), ".var/app/com.valvesoftware.Steam")
 LAUNCHERHOME = join(APPHOME, ".local/share/opentrack-launcher")
 OPENTRACKURL = "http://api.github.com/repos/opentrack/opentrack/releases/latest"
+ZIPBINARY = ""
 
 def findappid():
     appid = ""
@@ -91,7 +92,7 @@ def dlopentrack():
                     info("removing old opentrack version...")
                     rmtree(opentrackinstall)
                 info("extracting downloaded opentrack archive...")
-                err = Popen([ which("7z"), "x", "-aoa", "-o" + LAUNCHERHOME, opentrackark ], cwd=LAUNCHERHOME).wait()
+                err = Popen([ which(ZIPBINARY), "x", "-aoa", "-o" + LAUNCHERHOME, opentrackark ], cwd=LAUNCHERHOME).wait()
                 remove(opentrackark)
                 if err != 0:
                     panic("failed to extract " + opentrackark + "; 7z exit code: " + str(err))
@@ -149,7 +150,12 @@ def makehome():
             panic("failed to create opentrack-launcher home: " + LAUNCHERHOME)
 
 def check7z():
-    if which("7z") is None:
+    if not which("7z") is None:
+        ZIPBINARY = "7z"
+    elif not which("7za") is None:
+        ZIPBINARY = "7za"
+        
+    if not ZIPBINARY:
         panic("7z is not installed")
 
 if __name__ == '__main__':
