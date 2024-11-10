@@ -150,6 +150,7 @@ def makehome():
             panic("failed to create opentrack-launcher home: " + LAUNCHERHOME)
 
 def check7z():
+    global ZIPBINARY
     if not which("7z") is None:
         ZIPBINARY = "7z"
     elif not which("7za") is None:
