@@ -28,7 +28,7 @@ Then in Steam, right-click the game you want to use opentrack with, click on `Pr
 opentrack-launcher %command%
 
 # If you installed the script with the non-root option:
-/home/<your-username>/.local/bin/opentrack-launcher %command%
+~/.local/bin/opentrack-launcher %command%
 ```
 
 The first time you run the game with the launcher it might take a while, since it will download the latest version of opentrack and generate the launch script for the game.
