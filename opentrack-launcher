@@ -60,6 +60,11 @@ def isnewer(ver):
         f.close()
         return newer
 
+def removeversionfile():
+    versionfile = join(LAUNCHERHOME, "version.txt")
+    if isfile(versionfile):
+        remove(versionfile)
+
 def dlopentrack():
     info("checking if opentrack is up to date...")
     try:
@@ -92,16 +97,23 @@ def dlopentrack():
                     info("removing old opentrack version...")
                     rmtree(opentrackinstall)
                 info("extracting downloaded opentrack archive...")
-                err = Popen([ which(ZIPBINARY), "x", "-aoa", "-o" + LAUNCHERHOME, opentrackark ], cwd=LAUNCHERHOME).wait()
-                remove(opentrackark)
-                if err != 0:
-                    panic("failed to extract " + opentrackark + "; 7z exit code: " + str(err))
+                try:
+                    err = Popen([ which(ZIPBINARY), "x", "-aoa", "-o" + LAUNCHERHOME, opentrackark ], cwd=LAUNCHERHOME).wait()
+                    remove(opentrackark)
+                    if err != 0:
+                        panic("failed to extract " + opentrackark + "; 7z exit code: " + str(err))
+                except:
+                    # avoid unzip failure leaving files in a state where the launcher will never work again
+                    removeversionfile()
+                    remove(opentrackark)
+                    raise
                 return
 
 def getopentrack():
     dlopentrack()
     opentrackexec = join(LAUNCHERHOME, "install/opentrack.exe")
     if not isfile(opentrackexec):
+        removeversionfile()	# force next call of launcher to try to downloading OpenTrack again
         panic("could not find " + opentrackexec)
     else:
         return opentrackexec
