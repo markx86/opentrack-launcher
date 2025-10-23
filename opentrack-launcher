@@ -148,8 +148,9 @@ def getlaunchscript(appid, opentrackexec):
         opentrackwine = towinepath(opentrackexec)
         with open(script, mode="w") as f:
             f.writelines([
-                "start \"\" \"" + appwine + "\"" + appargs + "\r\n",
-                "start \"\" \"" + opentrackwine + "\"\r\n"
+                "start \"\" \"" + opentrackwine + "\"\r\n",
+                "start /wait \"\" \"" + appwine + "\"" + appargs + "\r\n",
+                "taskkill /IM opentrack.exe /F >nul 2>&1"
             ])
             f.close()
     return script
