@@ -10,14 +10,14 @@ from subprocess import Popen
 import json
 
 def panic(msg):
-    print("[opentrack-launcher] CRITICAL:", msg)
+    print("[opentrack-launcher] CRITICAL:", msg, flush=True)
     exit(-1)
 
 def error(msg):
-    print("[opentrack-launcher] ERROR:", msg)
+    print("[opentrack-launcher] ERROR:", msg, flush=True)
 
 def info(msg):
-    print("[opentrack-launcher] INFO:", msg)
+    print("[opentrack-launcher] INFO:", msg, flush=True)
 
 def getenv(name):
     try:
@@ -54,11 +54,14 @@ def isnewer(ver):
     with open(versionfile, mode="r+") as f:
         fver = f.read()
         newer = fver != ver
-        if newer:
-            f.truncate(0)
-            f.write(ver)
         f.close()
         return newer
+
+def updateversionfile(ver):
+    versionfile = join(LAUNCHERHOME, "version.txt")
+    with open(versionfile, mode="w") as f:
+        f.write(ver)
+    f.close()
 
 def removeversionfile():
     versionfile = join(LAUNCHERHOME, "version.txt")
@@ -102,12 +105,14 @@ def dlopentrack():
                     remove(opentrackark)
                     if err != 0:
                         panic("failed to extract " + opentrackark + "; 7z exit code: " + str(err))
+                        return
                 except:
                     # avoid unzip failure leaving files in a state where the launcher will never work again
                     removeversionfile()
                     remove(opentrackark)
                     raise
-                return
+    updateversionfile(version)
+    return
 
 def getopentrack():
     dlopentrack()
